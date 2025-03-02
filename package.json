@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "backend",
   "version": "1.0.0",
   "description": "tweetX backend",
@@ -7,13 +8,29 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+=======
+  "name": "tweetx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "backend/server.js",
+  "scripts": {
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js",
+>>>>>>> e5fcc00a50bba6275ed6424ea90034f5620951c6
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Hridoy Shil",
+<<<<<<< HEAD
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+=======
+  "type": "module",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+>>>>>>> e5fcc00a50bba6275ed6424ea90034f5620951c6
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
