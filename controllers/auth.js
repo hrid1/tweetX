@@ -1,7 +1,8 @@
 import { generateTokenAndsetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.js";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
+// ----------- Sign Up--------------
 
 export const signup = async (req, res) => {
   try {
@@ -19,6 +20,11 @@ export const signup = async (req, res) => {
     const existedEmail = await User.findOne({ email });
     if (existedEmail) {
       return res.status(400).json({ error: "Email is already taken." });
+    }
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "Password should atleast 6 charactres long" });
     }
 
     // hash password
@@ -47,19 +53,57 @@ export const signup = async (req, res) => {
       coverImg: newUser.coverImg,
     });
   } catch (error) {
-    console.log(error);
+    console.log("Signup Error", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// -------------- Login user -----------------
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      user?.password || ""
+    );
+
+    if (!user || !isPasswordCorrect) {
+      return res.status(400).json({ error: "Invalid username & password!" });
+    }
+    generateTokenAndsetCookie(user._id, res);
+
+    res.status(201).json({
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+      email: user.email,
+      followers: user.followers,
+      following: user.following,
+      profileImg: user.profileImg,
+      coverImg: user.coverImg,
+    });
+  } catch (error) {
+    console.log("Signup Error", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const login = async (req, res) => {
-  res.json({
-    data: "You hit the login endpoint.",
-  });
+export const logout = async (req, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged Out Successfully!" });
+  } catch (error) {
+    console.log("Logout Error", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
-export const logout = async (req, res) => {
-  res.json({
-    data: "This is logout",
-  });
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
+    res.status(200).json(user);
+  } catch (error) {
+    console.log("GetMe Error", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
