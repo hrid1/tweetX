@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.js";
+import userRouter from "./routes/user.js"
 import "dotenv/config";
 import connectMongoDB from "./db/connectDB.js";
 
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 console.log(process.env.MONGO_URI);
 
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter)
 
 app.listen(port, async () => {
   console.log(`Server is running on port ${port}`);
