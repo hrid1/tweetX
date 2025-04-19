@@ -1,6 +1,8 @@
 import Notification from "../models/notification.js";
 import User from "../models/user.js";
+import bcrypt from "bcrypt";
 
+// get user profile
 export const getUserProfile = async (req, res) => {
   const { username } = req.params;
 
@@ -35,6 +37,7 @@ export const followUnfollowUser = async (req, res) => {
     }
     if (!userToModify || !currentUser)
       return res.status(400).json({ error: "User not found" });
+
     const isFollowing = currentUser.following.includes(id);
 
     if (isFollowing) {
@@ -87,8 +90,44 @@ export const getSuggestedUsers = async (req, res) => {
       (user) => !usersFollowedByMe.following.includes(user._id)
     );
     const suggestUsers = filteredUsers.slice(0, 4);
+
+    //set password null for suggest user
     suggestUsers.forEach((user) => (user.password = null));
-    
+
     res.status(200).json(suggestUsers);
+  } catch (error) {}
+};
+
+// Update Users
+export const updateUser = async (req, res) => {
+  const { fullName, eamil, username, currentPassword, newPassword, big, link } =
+    req.body;
+  const userId = req.user._id;
+  try {
+    const user = await User.findById(userId);
+    if (user) return res.status(404).json({ message: "User not found" });
+
+    if (
+      (!newPassword && currentPassword) ||
+      (!currentPassword && newPassword)
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Plz provide both current and new password" });
+    }
+    // matching password
+    if (newPassword && currentPassword) {
+      const isMatched = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatched)
+        return res.status(400).json({ error: "Current Password is incorrect" });
+      if (newPassword.length < 6)
+        return res
+          .status(400)
+          .json({ error: "Password must be at least 6 charerter long" });
+
+      // new password update
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
   } catch (error) {}
 };

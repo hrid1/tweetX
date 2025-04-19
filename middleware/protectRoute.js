@@ -21,5 +21,6 @@ export const protectedRoute = async (req, res, next) => {
     next();
   } catch (error) {
     console.log("Protected Route", error);
+    return res.status(500).json({ error: "Internal server Error" });
   }
 };
